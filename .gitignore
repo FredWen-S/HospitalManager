@@ -1,0 +1,59 @@
+# Operating system files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+logs/
+
+# Java / Maven
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.iml
+
+# Spring Boot local output
+*.pid
+*.hprof
+
+# Node / Vue
+node_modules/
+dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment and local config
+.env
+.env.*
+!.env.example
+application-local.yml
+application-local.properties
+
+# IDEs
+.idea/
+.vscode/
+.settings/
+.project
+.classpath
+*.launch
+
+# Build caches
+.cache/
+.eslintcache
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+*.swp
+
+# Archives and packaged exports
+*.zip
+*.rar
+*.7z
