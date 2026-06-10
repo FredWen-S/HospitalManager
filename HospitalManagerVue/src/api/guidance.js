@@ -31,3 +31,9 @@ export function disableGuidanceRule(id) {
 export function getGuidanceStatistics() {
   return request.get("/guidance/statistics");
 }
+
+export function getGuidanceNavigation(department) {
+  return request.get("/guidance/navigation", {
+    params: { department }
+  });
+}

@@ -125,6 +125,18 @@
                         </i>
                         导诊统计
                     </el-menu-item>
+                    <el-menu-item
+                        index="feedbackList"
+                        @click="menuClick('feedbackList')"
+                        style="font-size: 20px"
+                    >
+                        <i
+                            class="iconfont icon-r-paper"
+                            style="font-size: 26px"
+                        >
+                        </i>
+                        用户反馈
+                    </el-menu-item>
                 </el-menu>
             </el-aside>
             <el-main>

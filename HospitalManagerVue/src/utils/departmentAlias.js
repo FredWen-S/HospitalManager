@@ -11,6 +11,17 @@ export function getTargetDepartment(department) {
   return DEPARTMENT_ALIAS[department] || department;
 }
 
+export function getGuidanceDepartment(department) {
+  if (!department) return "";
+  const names = Object.keys(DEPARTMENT_ALIAS);
+  for (let i = 0; i < names.length; i++) {
+    if (DEPARTMENT_ALIAS[names[i]] === department) {
+      return names[i];
+    }
+  }
+  return department;
+}
+
 export function buildGuidanceRegisterPath(department) {
   const targetDepartment = getTargetDepartment(department);
   if (!targetDepartment) return "/orderOperate";

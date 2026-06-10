@@ -50,6 +50,22 @@
             智能导诊
           </el-menu-item>
           <el-menu-item
+            index="/patient/navigation"
+            @click="menuClick('/patient/navigation')"
+            style="font-size: 20px"
+          >
+            <i class="iconfont icon-r-edit" style="font-size: 22px"></i>
+            科室导航
+          </el-menu-item>
+          <el-menu-item
+            index="/patient/feedback"
+            @click="menuClick('/patient/feedback')"
+            style="font-size: 20px"
+          >
+            <i class="iconfont icon-r-paper" style="font-size: 22px"></i>
+            意见反馈
+          </el-menu-item>
+          <el-menu-item
             index="myOrder"
             @click="menuClick('myOrder')"
             style="font-size: 20px"

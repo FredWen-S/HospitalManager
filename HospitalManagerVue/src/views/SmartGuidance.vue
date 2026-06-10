@@ -54,6 +54,9 @@
           </el-descriptions>
           <div class="actions">
             <el-button size="small" @click="showDoctors(item)">查看该科室医生</el-button>
+            <el-button size="small" @click="goNavigation(item.recommendedDepartment)">
+              查看路线
+            </el-button>
             <el-button size="small" type="primary" @click="goRegister(item.recommendedDepartment)">
               预约该科室
             </el-button>
@@ -132,6 +135,13 @@ export default {
         return;
       }
       this.$router.push(buildGuidanceRegisterPath(department));
+    },
+    goNavigation(department) {
+      if (!department) {
+        this.$router.push("/patient/navigation");
+        return;
+      }
+      this.$router.push("/patient/navigation?department=" + encodeURIComponent(department));
     }
   }
 };

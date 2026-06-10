@@ -57,17 +57,17 @@ public class PdfUtil {
         //设置表格宽度
         tableMessage.setTotalWidth(new float[] { 30, 120, 30, 120 });
         tableMessage.addCell(new Paragraph("姓名", FontChinese));
-        tableMessage.addCell(new Paragraph(order.getPatient().getPName(), FontChinese));
+        tableMessage.addCell(new Paragraph(text(order.getPatient().getPName()), FontChinese));
         tableMessage.addCell(new Paragraph("性别", FontChinese));
-        tableMessage.addCell(new Paragraph(order.getPatient().getPGender(), FontChinese));
+        tableMessage.addCell(new Paragraph(text(order.getPatient().getPGender()), FontChinese));
         tableMessage.addCell(new Paragraph("年龄", FontChinese));
-        tableMessage.addCell(new Paragraph(order.getPatient().getPAge() +" 岁", FontChinese));
+        tableMessage.addCell(new Paragraph(text(order.getPatient().getPAge()) +" 岁", FontChinese));
         tableMessage.addCell(new Paragraph("单号", FontChinese));
-        tableMessage.addCell(String.valueOf(order.getOId()));
+        tableMessage.addCell(new Paragraph(text(order.getOId()), FontChinese));
         tableMessage.addCell(new Paragraph("日期", FontChinese));
-        tableMessage.addCell(order.getOEnd());
+        tableMessage.addCell(new Paragraph(text(order.getOEnd()), FontChinese));
         tableMessage.addCell(new Paragraph("电话", FontChinese));
-        tableMessage.addCell(order.getPatient().getPPhone());
+        tableMessage.addCell(new Paragraph(text(order.getPatient().getPPhone()), FontChinese));
         document.add(tableMessage);
 
 
@@ -82,28 +82,28 @@ public class PdfUtil {
         PdfPCell cell1 = new PdfPCell(new Paragraph("症状", new Font(bfChinese, 14, Font.NORMAL)));
         cell1.setFixedHeight(25);
         cell1.setBorder(0);
-        PdfPCell cell2 = new PdfPCell(new Paragraph(order.getORecord(), new Font(bfChinese, 10, Font.NORMAL)));
+        PdfPCell cell2 = new PdfPCell(new Paragraph(text(order.getORecord()), new Font(bfChinese, 10, Font.NORMAL)));
         cell2.setFixedHeight(30);
         cell2.setBorder(0);
         cell2.setPaddingLeft(10);
         PdfPCell cell3 = new PdfPCell(new Paragraph("检查项目及价钱", new Font(bfChinese, 14, Font.NORMAL)));
         cell3.setFixedHeight(25);
         cell3.setBorder(0);
-        PdfPCell cell4 = new PdfPCell(new Paragraph(order.getOCheck(), new Font(bfChinese, 10, Font.NORMAL)));
+        PdfPCell cell4 = new PdfPCell(new Paragraph(text(order.getOCheck()), new Font(bfChinese, 10, Font.NORMAL)));
         cell4.setFixedHeight(30);
         cell4.setBorder(0);
         cell4.setPaddingLeft(10);
         PdfPCell cell5 = new PdfPCell(new Paragraph("药物及价钱", new Font(bfChinese, 14, Font.NORMAL)));
         cell5.setFixedHeight(25);
         cell5.setBorder(0);
-        PdfPCell cell6 = new PdfPCell(new Paragraph(order.getODrug(), new Font(bfChinese, 10, Font.NORMAL)));
+        PdfPCell cell6 = new PdfPCell(new Paragraph(text(order.getODrug()), new Font(bfChinese, 10, Font.NORMAL)));
         cell6.setFixedHeight(30);
         cell6.setBorder(0);
         cell6.setPaddingLeft(10);
         PdfPCell cell7 = new PdfPCell(new Paragraph("诊断/医生意见", new Font(bfChinese, 14, Font.NORMAL)));
         cell7.setFixedHeight(25);
         cell7.setBorder(0);
-        PdfPCell cell8 = new PdfPCell(new Paragraph(order.getOAdvice(), new Font(bfChinese, 10, Font.NORMAL)));
+        PdfPCell cell8 = new PdfPCell(new Paragraph(text(order.getOAdvice()), new Font(bfChinese, 10, Font.NORMAL)));
         cell8.setFixedHeight(100);
         cell8.setBorder(0);
         cell8.setPaddingLeft(10);
@@ -138,5 +138,9 @@ public class PdfUtil {
 
 
         document.close();
+    }
+
+    private static String text(Object value) {
+        return value == null ? "" : String.valueOf(value);
     }
 }

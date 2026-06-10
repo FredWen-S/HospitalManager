@@ -141,8 +141,6 @@ export default {
     methods: {
         //评价点击确认
         starClick() {
-            console.log(this.star);
-            console.log(this.dId);
             request
                 .get("doctor/updateStar", {
                     params: {
@@ -159,8 +157,7 @@ export default {
         },
         //查看报告单
         seeReport(id) {
-            window.location.href =
-                "http://localhost:9281/patient/pdf?oId=" + id;
+            window.open("/patient/pdf?oId=" + encodeURIComponent(id), "_blank");
         },
         //点击缴费按钮
         priceClick(oId, dId) {
@@ -201,14 +198,11 @@ export default {
                     },
                 })
                 .then((res) => {
-                    if (res.data.status !== 200)
+                    if (res.data.status !== 200) {
                         this.$message.error("请求数据失败");
-                    this.orderData = res.data.data;
-                    //this.orderData.dSection = res.data.data.map(item => item.doctor.dSection);
-                    //console.log(res.data.data.map(item => item.doctor.dSection));
-                    console.log(this.orderData.oId);
-                    console.log(this.orderData.pName);
-                    console.log(res);
+                        return;
+                    }
+                    this.orderData = res.data.data || [];
                 });
         },
         //token解码
@@ -221,7 +215,6 @@ export default {
         //this.orderData.pName = this.tokenDecode(getToken()).pName;
         //this.orderData.pCard = this.tokenDecode(getToken()).pCard;
         this.userId = this.tokenDecode(getToken()).pId;
-        console.log(this.orderData.pName);
         //this.orderData.pName = "dasda"
         this.requestOrder();
     },

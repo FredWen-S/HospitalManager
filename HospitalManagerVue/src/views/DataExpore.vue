@@ -1,11 +1,11 @@
 <template>
   <div class="Echarts">
-    <div id="orderPeople" style="width: 1200px; height: 400px;"></div>
-    <div id="orderSection" style="width: 1200px; height: 400px;"></div>
-    <div id="orderGender" style="width: 540px; height: 500px;float:left"></div>
-    <div id="patientAge" style="width: 600px; height: 500px;float:right"></div>
-
-
+    <div id="orderPeople" class="chart chart-wide"></div>
+    <div id="orderSection" class="chart chart-wide"></div>
+    <div class="chart-row">
+      <div id="orderGender" class="chart chart-half"></div>
+      <div id="patientAge" class="chart chart-half"></div>
+    </div>
   </div>
 </template>
 <script>
@@ -24,6 +24,7 @@ export default {
       var myChart = this.$echarts.init(document.getElementById("patientAge"));
       request.get("patient/patientAge")
       .then(res => {
+        const ageData = res.data.data || [];
         var option = {
            title: {
         text: '患者年龄段分布',
@@ -62,16 +63,16 @@ export default {
                 show: false
             },
             data: [
-                {value: res.data.data[0], name: '0-9岁'},
-                {value: res.data.data[1], name: '10-19岁'},
-                {value: res.data.data[2], name: '20-29岁'},
-                {value: res.data.data[3], name: '30-39岁'},
-                {value: res.data.data[4], name: '40-49岁'},
-                {value: res.data.data[5], name: '50-59岁'},
-                {value: res.data.data[6], name: '60-69岁'},
-                {value: res.data.data[7], name: '70-79岁'},
-                {value: res.data.data[8], name: '80-89岁'},
-                {value: res.data.data[9], name: '90-99岁'},
+                {value: ageData[0] || 0, name: '0-9岁'},
+                {value: ageData[1] || 0, name: '10-19岁'},
+                {value: ageData[2] || 0, name: '20-29岁'},
+                {value: ageData[3] || 0, name: '30-39岁'},
+                {value: ageData[4] || 0, name: '40-49岁'},
+                {value: ageData[5] || 0, name: '50-59岁'},
+                {value: ageData[6] || 0, name: '60-69岁'},
+                {value: ageData[7] || 0, name: '70-79岁'},
+                {value: ageData[8] || 0, name: '80-89岁'},
+                {value: ageData[9] || 0, name: '90-99岁'},
             ]
         }
     ]
@@ -93,8 +94,7 @@ export default {
       var myChart = this.$echarts.init(document.getElementById("orderSection"));
       request.get("order/orderSection")
       .then(res => {
-        console.log(res.data.data.map((item) => item.countSection));
-        console.log(res.data.data.map((item) => item.doctor.dSection))
+        const sectionData = res.data.data || [];
         var option = {
              title: {
         text: '挂号科室人数统计',
@@ -102,7 +102,7 @@ export default {
     },
     xAxis: {
         type: 'category',
-        data: res.data.data.map((item) => item.doctor.dSection),
+        data: sectionData.map((item) => item.doctor && item.doctor.dSection ? item.doctor.dSection : '未知科室'),
         axisLabel: {//解决各个不显示问题
            interval:0,
            rotate:10,
@@ -113,7 +113,7 @@ export default {
         type: 'value'
     },
     series: [{
-        data: res.data.data.map((item) => item.countSection),
+        data: sectionData.map((item) => item.countSection || 0),
         type: 'bar',
         showBackground: true,
         backgroundStyle: {
@@ -137,6 +137,7 @@ export default {
       var myChart = this.$echarts.init(document.getElementById("orderGender"));
       request.get("order/orderGender",)
       .then(res => {
+      const genderData = res.data.data || [];
       var option = {
     title: {
         text: '患者性别比例',
@@ -154,11 +155,12 @@ export default {
             name: '人数',
             type: 'pie',
             radius: '50%',
-            data: [
-                {value: res.data.data.map((item) => item.countGender)[0], name: res.data.data.map((item) => item.patient.pGender)[0]},
-                {value: res.data.data.map((item) => item.countGender)[1], name: res.data.data.map((item) => item.patient.pGender)[1]},
-                
-            ],
+            data: genderData.length
+                ? genderData.map((item) => ({
+                    value: item.countGender || 0,
+                    name: item.patient && item.patient.pGender ? item.patient.pGender : '未知'
+                }))
+                : [{ value: 0, name: '暂无数据' }],
             emphasis: {
                 itemStyle: {
                     shadowBlur: 10,
@@ -222,10 +224,12 @@ export default {
     },
   },
   mounted() {
-    this.orderPeople();
-    this.orderGender();
-    this.orderSection();
-    this.patientAge();
+    this.$nextTick(() => {
+      this.orderPeople();
+      this.orderGender();
+      this.orderSection();
+      this.patientAge();
+    });
   },
   created() {
     //获取过去7天日期
@@ -236,5 +240,24 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
+.Echarts {
+  width: 100%;
+}
+.chart {
+  min-height: 380px;
+}
+.chart-wide {
+  width: 100%;
+  height: 400px;
+}
+.chart-row {
+  display: flex;
+  gap: 16px;
+}
+.chart-half {
+  flex: 1;
+  height: 500px;
+  min-width: 0;
+}
 </style>

@@ -62,4 +62,9 @@ public class GuidanceController {
     public ResponseData statistics() {
         return ResponseData.success("查询导诊统计成功", guidanceService.statistics());
     }
+
+    @GetMapping("navigation")
+    public ResponseData navigation(String department) {
+        return ResponseData.success("查询科室导航成功", guidanceService.navigation(department));
+    }
 }

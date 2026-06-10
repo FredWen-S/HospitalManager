@@ -95,6 +95,12 @@ public class PatientController {
     @GetMapping("/pdf")
     public void downloadPDF(HttpServletRequest request, HttpServletResponse response, int oId) throws Exception {
         Orders order = this.orderMapper.findOrderByOid(oId);
+        if (order == null) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            response.setContentType("text/plain;charset=UTF-8");
+            response.getWriter().write("报告不存在或挂号单号无效");
+            return;
+        }
         PdfUtil.ExportPdf(request, response, order);
     }
     /**

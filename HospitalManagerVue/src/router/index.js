@@ -40,6 +40,9 @@ import SmartGuidance from "@/views/SmartGuidance.vue";
 import GuidanceHistory from "@/views/GuidanceHistory.vue";
 import GuidanceRuleList from "@/views/GuidanceRuleList.vue";
 import GuidanceStatistics from "@/views/GuidanceStatistics.vue";
+import PatientNavigation from "@/views/PatientNavigation.vue";
+import FeedbackSubmit from "@/views/FeedbackSubmit.vue";
+import FeedbackList from "@/views/FeedbackList.vue";
 
 Vue.prototype.$echarts = echarts;//引入echarts
 Vue.use(ElementUI);
@@ -148,6 +151,13 @@ const routes = [
       },
     },
     {
+      path: "/feedbackList",
+      component: FeedbackList,
+      meta: {
+        requireAuth: true,
+      },
+    },
+    {
       path: "/arrangeIndex",
       component: ArrangeIndex,
       meta: {
@@ -207,6 +217,14 @@ const routes = [
       {
         path: "/patient/guidance-history",
         component: GuidanceHistory
+      },
+      {
+        path: "/patient/navigation",
+        component: PatientNavigation
+      },
+      {
+        path: "/patient/feedback",
+        component: FeedbackSubmit
       },
       {
         path: "/sectionMessage",

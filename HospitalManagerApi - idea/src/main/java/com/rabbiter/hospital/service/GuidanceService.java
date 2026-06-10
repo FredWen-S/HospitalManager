@@ -19,4 +19,6 @@ public interface GuidanceService {
     Boolean disableRule(Integer id);
 
     HashMap<String, Object> statistics();
+
+    HashMap<String, Object> navigation(String department);
 }

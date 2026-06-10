@@ -19,6 +19,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.List;
 import java.util.Set;
 
@@ -129,13 +130,161 @@ public class GuidanceServiceImpl implements GuidanceService {
     @Override
     public HashMap<String, Object> statistics() {
         HashMap<String, Object> map = new HashMap<>();
+        List<GuidanceRule> rules = guidanceRuleMapper.selectList(null);
+        List<GuidanceRecord> records = guidanceRecordMapper.selectList(
+                new QueryWrapper<GuidanceRecord>().select("matched_keywords")
+        );
         map.put("total", guidanceRecordMapper.selectCount(null));
+        map.put("enabledRuleCount", countRules(rules, 1));
+        map.put("disabledRuleCount", countRules(rules, 0));
+        map.put("coveredDepartmentCount", countDepartments(rules));
         map.put("topDepartments", guidanceRecordMapper.countTopDepartments());
         map.put("topSymptoms", guidanceRecordMapper.countTopSymptoms());
+        map.put("topKeywords", countTopKeywords(records));
         map.put("recentRecords", guidanceRecordMapper.selectList(
                 new QueryWrapper<GuidanceRecord>().orderByDesc("create_time").last("limit 10")
         ));
         return map;
+    }
+
+    @Override
+    public HashMap<String, Object> navigation(String department) {
+        QueryWrapper<GuidanceRule> wrapper = new QueryWrapper<GuidanceRule>()
+                .eq("enabled", 1)
+                .orderByDesc("priority")
+                .orderByDesc("update_time");
+        List<GuidanceRule> rules = guidanceRuleMapper.selectList(wrapper);
+        List<HashMap<String, Object>> items = new ArrayList<>();
+
+        if (department != null && department.trim().length() > 0) {
+            String query = department.trim();
+            GuidanceRule matched = null;
+            for (GuidanceRule rule : rules) {
+                if (matchesDepartment(rule, query)) {
+                    matched = rule;
+                    break;
+                }
+            }
+            if (matched == null) {
+                items.add(defaultNavigation(query));
+            } else {
+                items.add(toNavigationItem(matched, countDiseaseNames(rules, matched.getDepartment())));
+            }
+        } else {
+            Set<String> added = new HashSet<>();
+            for (GuidanceRule rule : rules) {
+                String ruleDepartment = rule.getDepartment();
+                if (ruleDepartment == null || ruleDepartment.trim().length() == 0 || added.contains(ruleDepartment)) {
+                    continue;
+                }
+                items.add(toNavigationItem(rule, countDiseaseNames(rules, ruleDepartment)));
+                added.add(ruleDepartment);
+            }
+        }
+
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("items", items);
+        if (!items.isEmpty()) {
+            map.put("topResult", items.get(0));
+        }
+        return map;
+    }
+
+    private boolean matchesDepartment(GuidanceRule rule, String query) {
+        String department = rule.getDepartment();
+        return department != null && (department.equals(query) || department.contains(query) || query.contains(department));
+    }
+
+    private HashMap<String, Object> toNavigationItem(GuidanceRule rule, String diseaseNames) {
+        HashMap<String, Object> item = new HashMap<>();
+        item.put("department", rule.getDepartment());
+        item.put("location", hasText(rule.getLocation()) ? rule.getLocation() : "暂未配置该科室位置，请前往一楼导诊台咨询。");
+        item.put("routeTip", hasText(rule.getRouteTip()) ? rule.getRouteTip() : "暂未配置该科室路线，请前往一楼导诊台咨询。");
+        item.put("matchedRules", diseaseNames);
+        item.put("diseaseName", rule.getDiseaseName());
+        return item;
+    }
+
+    private HashMap<String, Object> defaultNavigation(String department) {
+        HashMap<String, Object> item = new HashMap<>();
+        item.put("department", department);
+        item.put("location", "暂未配置该科室位置，请前往一楼导诊台咨询。");
+        item.put("routeTip", "暂未配置该科室路线，请前往一楼导诊台咨询。");
+        item.put("matchedRules", "");
+        item.put("diseaseName", "");
+        return item;
+    }
+
+    private String countDiseaseNames(List<GuidanceRule> rules, String department) {
+        StringBuilder builder = new StringBuilder();
+        for (GuidanceRule rule : rules) {
+            if (department != null && department.equals(rule.getDepartment()) && hasText(rule.getDiseaseName())) {
+                if (builder.length() > 0) {
+                    builder.append("、");
+                }
+                builder.append(rule.getDiseaseName());
+            }
+        }
+        return builder.toString();
+    }
+
+    private boolean hasText(String text) {
+        return text != null && text.trim().length() > 0;
+    }
+
+    private int countRules(List<GuidanceRule> rules, int enabled) {
+        int count = 0;
+        for (GuidanceRule rule : rules) {
+            if (rule.getEnabled() != null && rule.getEnabled() == enabled) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private int countDepartments(List<GuidanceRule> rules) {
+        Set<String> departments = new HashSet<>();
+        for (GuidanceRule rule : rules) {
+            if (rule.getDepartment() != null && rule.getDepartment().trim().length() > 0) {
+                departments.add(rule.getDepartment().trim());
+            }
+        }
+        return departments.size();
+    }
+
+    private List<Map<String, Object>> countTopKeywords(List<GuidanceRecord> records) {
+        HashMap<String, Integer> counts = new HashMap<>();
+        for (GuidanceRecord record : records) {
+            String keywords = record.getMatchedKeywords();
+            if (keywords == null || keywords.trim().length() == 0) {
+                continue;
+            }
+            String[] array = keywords.replace("，", ",").split(",");
+            for (String item : array) {
+                String keyword = item.trim();
+                if (keyword.length() == 0) {
+                    continue;
+                }
+                counts.put(keyword, counts.containsKey(keyword) ? counts.get(keyword) + 1 : 1);
+            }
+        }
+        List<Map<String, Object>> list = new ArrayList<>();
+        for (Map.Entry<String, Integer> entry : counts.entrySet()) {
+            HashMap<String, Object> item = new HashMap<>();
+            item.put("name", entry.getKey());
+            item.put("value", entry.getValue());
+            list.add(item);
+        }
+        Collections.sort(list, new Comparator<Map<String, Object>>() {
+            @Override
+            public int compare(Map<String, Object> o1, Map<String, Object> o2) {
+                return ((Integer) o2.get("value")).compareTo((Integer) o1.get("value"));
+            }
+        });
+        if (list.size() > 5) {
+            return new ArrayList<>(list.subList(0, 5));
+        }
+        return list;
     }
 
     private GuidanceResult matchRule(String cleanedText, GuidanceRule rule) {
